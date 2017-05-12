@@ -1,0 +1,95 @@
+Lab 3
+for heavy processes
+	-use fork, wait and exit
+	-sync heavy processes with NAMED semaphores
+
+for lightweight processes (threads)
+	-use pthread_create, pthread_join, pthread_exit
+	-sync using mutex and conditional variables
+	
+Roles
+	Factory Manager(Chief)
+		-Heavy process
+		-creates and syncs the processes that produce elements inside the process manager(factory)
+		-creates as many process managers processes as indicated
+		-communicates with his n managers (process_manager)
+			-gives them information about how many elements each of them has to produce
+	Process Manager(Manager)
+		-Heavy process
+		-initiates lightweight processes
+			-those lightweight process generate a producer-consumer 
+			 system implemented with threads
+		-Each process_manager dispatches two workers(producer and consumer)
+		 that perform the tasks
+	Producer(worker)
+		-exists within the process manager
+		-lightweight process
+		-produces as many elements as indicated by the PM
+		-transport belt communicates producer and consumer
+		-finalizes when all elements have been inserted and retrieved
+	Consumer(worker)
+		-exists within the process manager
+		-lightweight process
+		-collects as many elements as the producer produces on the belt
+		-finalizes when all elements have been inserted and retrieved
+		
+FACTORY MANAGER
+	-retrieves the input parameters of the factory
+	-launch a number of process_manager processes indicated
+	-synchronize the execution of the different process_manager processes
+	 following the order given by the parameters.
+	 -Has a maximum size given in input file. No more process than defined there.
+	 
+	 -Factory manager creats a new process manager by indicating:
+	 <id> <name of the semaphore> <maximum size of the belt> <number of products tobe generated>
+	 -Id:​ is the identifier of the assigned belt 
+	 (indicated by the data included in the input file).
+	 -Id of the semaphore: ID of a named semaphore controlled by FM, given to children by parameter.
+	 -Maximum size of the belt: Max nr of elements on belt(buffer).
+	 -Number of products to be generated:each worker(producer?) has nr of products to generate.
+	  (indicated by the input file and assigned using this parameter).
+	  
+QUEUE
+	-there exists one circular buffer per producer-consumer system
+	-transport belts correspond to queues implemented with a circular buffer
+	-Concurrency mechanisms must be implemented to control the access to the elements of the belt
+		-done with mutex and conditional variables.
+	-queue.c must contain these functions:
+		 ● Int Queue_init(int num_elements)​
+		 ● Int Queue_destroy(void)​:
+		 ● Int Queue_put (struct element * ele)​:
+		 ● Struct element * Queue_get (void)​:
+		 ● Int Queue_empty()​:
+		 ● Int Queue_full() ​: 
+	-The object/element/product that must be stored and extracted
+	from the belts is implemented with struct
+		-Int num_edition​: represents the order of creation inside the belt. 0 - N. -ID?
+		-Int id_belt​: the id of the belt in which the object is created - passed as parameter
+		-Int last​: 0 if not last elem to be inserted, 1 if it is.
+	
+Input file of the factory_manager:
+	this file is read by the factory_manager and should check if the data is correctly structured.
+		-ex: number of belts not less or equal to 0.
+	-Format: <maximum number of process managers> [<id process manager> <size of the belt> <number of elements> ]​
+	-Maximum number of belts: Max nr of process manager that can be executed in paralell, 
+	 if more are needed than max, file is invalid and exit with -1.
+	-Id process manager: ​one id is assigned to each process_manager to identify their products.
+	-Size of the belt: Size of the circular buffer: maximum number of elements that can be stored in the transport belt
+	-Nr elements: ​ number of elements that must be generated in this process_manager
+	 
+	Ex file: "4 5 5 2 1 2 3 3 5 2"
+		-Max 4 process_managers.
+		-PM #5 creates a belt with max 5 elems, and producer-consumer would move 2 elements.
+		-PM #1 creates a belt with max 2 elems, and producer-consumer would move 3 elements.
+		-PM #3 creates a belt with max 5 elems, and producer-consumer would move 2 elements.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
